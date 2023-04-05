@@ -3,7 +3,25 @@ package shagiev.dobryagin.functions;
 import java.util.*;
 
 public class Dijkstra {
-  public static List<Integer> search(Map<Integer, Map<Integer, Integer>> ways, int start, int finish) {
+  public static class SearchResult {
+    public final List<Integer> nodes;
+    public final int weight;
+
+    public SearchResult(List<Integer> nodes, int weight) {
+      this.nodes = nodes;
+      this.weight = weight;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if(this == obj) return true;
+      if(obj == null || obj.getClass() != this.getClass()) return false;
+      SearchResult searchResult = (SearchResult) obj;
+      return this.nodes.equals(searchResult.nodes) && this.weight == searchResult.weight;
+    }
+  }
+
+  public static SearchResult search(Map<Integer, Map<Integer, Integer>> ways, int start, int finish) {
     var queue = new TreeSet<>(comparatorForQueue);
     var distances = new HashMap<Integer, Integer>();
     var parentNodes = new HashMap<Integer, Integer>();
@@ -29,18 +47,22 @@ public class Dijkstra {
       }
     }
 
-    if(queue.isEmpty()) return Collections.emptyList();
+    if(queue.isEmpty()) return new SearchResult(Collections.emptyList(), 0);
 
     var wayFromStartToFinish = new LinkedList<Integer>();
     var currentNode = finish;
     wayFromStartToFinish.add(finish);
+    int resultWayWeight = 0;
+
     while (currentNode != start) {
-      currentNode = parentNodes.get(currentNode);
+      var prevNode = parentNodes.get(currentNode);
+      resultWayWeight += ways.get(prevNode).get(currentNode);
+      currentNode = prevNode;
       wayFromStartToFinish.add(currentNode);
     }
     Collections.reverse(wayFromStartToFinish);
 
-    return wayFromStartToFinish;
+    return new SearchResult(wayFromStartToFinish, resultWayWeight);
   }
 
   private static final Comparator<Map.Entry<Integer, Integer>> comparatorForQueue = (o1, o2) -> o1.getValue().compareTo(o2.getValue()) != 0
