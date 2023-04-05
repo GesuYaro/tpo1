@@ -3,11 +3,14 @@ package shagiev.dobryagin.functions;
 import org.junit.jupiter.api.Test;
 import shagiev.dobryagin.functions.Dijkstra.SearchResult;
 
+import java.util.AbstractMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DijkstraTest {
 
@@ -32,11 +35,22 @@ class DijkstraTest {
 
   @Test
   void search() {
-    var expected = new SearchResult(List.of(0, 3, 1, 6, 2), 13);
+    var expectedTraversal = List.of(
+      new AbstractMap.SimpleEntry<>(0, List.of(3, 4)),
+      new AbstractMap.SimpleEntry<>(3, List.of(0, 7, 1)),
+      new AbstractMap.SimpleEntry<>(1, List.of(6, 3)),
+      new AbstractMap.SimpleEntry<>(4, List.of(2, 0)),
+      new AbstractMap.SimpleEntry<>(7, List.of(3, 5, 6)),
+      new AbstractMap.SimpleEntry<>(6, List.of(7, 1, 2))
+    );
+
+    var expected = new SearchResult(List.of(0, 3, 1, 6, 2), 13, expectedTraversal);
 
     var actual = Dijkstra.search(graph, 0, 2);
 
+    assertNotNull(actual.traversal);
     assertEquals(expected, actual);
+    checkTraversals(expectedTraversal, actual.traversal);
   }
 
   @Test
@@ -64,5 +78,19 @@ class DijkstraTest {
     var actual = Dijkstra.search(threeComponentsGraph, 100, 101);
 
     assertEquals(expected, actual);
+  }
+
+  private void checkTraversals(
+    List<? extends Map.Entry<Integer, List<Integer>>> expected,
+    List<? extends Map.Entry<Integer, List<Integer>>> actual
+  ) {
+    assertEquals(expected.size(), actual.size());
+
+    for (int i = 0; i < expected.size(); i++) {
+      var stageFromExpected = expected.get(i);
+      var stageFromActual = actual.get(i);
+      assertEquals(stageFromExpected.getKey(), stageFromActual.getKey());
+      assertEquals(new HashSet<>(stageFromExpected.getValue()), new HashSet<>(stageFromActual.getValue()));
+    }
   }
 }
