@@ -1,33 +1,36 @@
 package shagiev.dobryagin.domain;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class StoryTest {
 
-    LightDot lightDotMock = Mockito.mock(LightDot.class);
-    Horizon horizonMock = Mockito.mock(Horizon.class);
-    List<Sun> suns = List.of(Mockito.mock(Sun.class), Mockito.mock(Sun.class));
-    Flash flashMock = Mockito.mock(Flash.class);
-    Story story = new Story(lightDotMock, horizonMock, suns);
+    final LightDot lightDotMock = mock();
+    final Horizon horizonMock = mock();
+    final Sun sun1 = mock();
+    final Sun sun2 = mock();
+    final List<Sun> suns = List.of(sun1, sun2);
+    final Flash flashMock = mock();
+    final Story story = new Story(lightDotMock, horizonMock, suns);
 
-    {
-        Mockito.when(lightDotMock.flash()).thenReturn(flashMock);
+    @BeforeEach
+    public void setUp() {
+        when(lightDotMock.flash()).thenReturn(flashMock);
     }
 
     @Test
     void tellStory() {
         story.tellStory();
-        Mockito.verify(lightDotMock).flash();
-        Mockito.verify(lightDotMock).sprawl();
-        Mockito.verify(horizonMock).burnWithFlame(Mockito.any());
-        suns.forEach(s -> Mockito.verify(s).appear());
-        Mockito.verify(flashMock).flow();
+        var inOrder = inOrder(lightDotMock, horizonMock, flashMock, sun1, sun2);
+        inOrder.verify(lightDotMock).flash();
+        inOrder.verify(lightDotMock).sprawl();
+        inOrder.verify(sun1).appear();
+        inOrder.verify(sun2).appear();
+        inOrder.verify(horizonMock).burnWithFlame(any());
+        inOrder.verify(flashMock).flow();
     }
 }
