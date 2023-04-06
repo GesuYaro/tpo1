@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Story {
 
-    protected final LightDot lightDot;
+    private final LightDot lightDot;
     private final Horizon horizon;
     private final List<Sun> suns;
 
