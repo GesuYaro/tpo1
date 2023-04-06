@@ -13,11 +13,12 @@ public class Sun {
         isAppeared = true;
     }
 
-    public boolean isAppeared() {
-        return isAppeared;
+    public void disappear() {
+        if (!isAppeared) throw new UnsupportedOperationException();
+        isAppeared = false;
     }
 
-    public void setAppeared(boolean appeared) {
-        isAppeared = appeared;
+    public boolean isAppeared() {
+        return isAppeared;
     }
 }
